@@ -11,7 +11,7 @@ if(isset($_SESSION['logged'])) {
 if(isset($_POST['nick'])) {
     $connection = connectDB();
 
-    if (mysqli_connect_errno() != 0)
+    if ($connection->errno != 0)
     {
         $error = 'Nie udało się połączyć z bazą danych! Spróbuj ponownie później.';
     }
@@ -34,6 +34,7 @@ if(isset($_POST['nick'])) {
                 $_SESSION['logged'] = true;
                 $_SESSION['login'] = $login;
                 $_SESSION['accountType'] = $row['account_type'];
+
                 infoPage('Zalogowano');
                 exit();
             }
@@ -53,6 +54,7 @@ if(isset($_POST['nick'])) {
     <meta charset="UTF-8" />
     <title>Logowanie - Książka kucharska</title>
     <link href="style.css" type="text/css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Lato&amp;subset=latin-ext" rel="stylesheet">
 </head>
 <body>
 <div id="header">
@@ -78,7 +80,7 @@ if(isset($_POST['nick'])) {
         </div>
         <br /><input type="submit" value="Zaloguj"/>
     </form>
-    <div id="err" >
+    <div class="err" >
         <?php echo $error?>
     </div>
     <a href="register.php" id="confirm">Rejestracja</a>

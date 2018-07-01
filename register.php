@@ -40,6 +40,7 @@ if(isset($_POST['nick'])) {
     <meta charset="UTF-8" />
     <title>Rejestracja - Książka kucharska</title>
     <link href="style.css" type="text/css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Lato&amp;subset=latin-ext" rel="stylesheet">
 </head>
 <body>
 <div id="header">
@@ -75,7 +76,7 @@ if(isset($_POST['nick'])) {
         </div>
         <br /><input type="submit" value="Rejestruj"/>
     </form>
-    <div id="err">
+    <div class="err">
         <?php echo $error?>
     </div>
     <a href="login.php" id="confirm">Logowanie</a>

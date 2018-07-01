@@ -32,7 +32,7 @@ class Profile {
     private function drawTopPartPage($sectorName) {
         echo '<div id="recipeHeader">';
         $path = file_exists('avatars/'.$this->name.'.jpg')?'avatars/'.$this->name.'.jpg':'avatars/default.jpg';
-        echo '<img src="'.$path.'" />';
+        echo '<img src="'.$path.'?='.filemtime($path).'" />';
         echo '<div id="recipeInfo" >';
         echo '<div id="recipeName" >'.$this->name.'</div>';
         echo '<label>Data dołączenia: </label>'.$this->joinDate.'<br />';
@@ -43,7 +43,16 @@ class Profile {
         echo '<div id="recipe" >';
         echo '<div id="ingredients" ><b>Akcje:</b>';
         // Przyciski akcji
-        echo '<div class="button"><a href="profile.php?action=addAvatar">Zmień avatar</a></div> ';
+        echo '<a href="profile.php?nick='.rawurlencode($this->name).'"><div class="button">Przegląd przepisów</div></a> ';
+
+        if (isset($_SESSION['login'])&&$_SESSION['login']==$this->name)
+            echo '<a href="profile.php?action=addAvatar"><div class="button">Zmień avatar</div></a> ';
+
+        if (isset($_SESSION['accountType'])&&$_SESSION['accountType']=='admin'&&$this->accountType == 'standardowy')
+            echo '<a href="profile.php?action=makeModerator&nick='.rawurlencode($this->name).'"><div class="button">Mianuj moderatorem</div></a> ';
+
+        if (isset($_SESSION['accountType'])&&$_SESSION['accountType']=='admin'&&$this->accountType == 'moderator')
+            echo '<a href="profile.php?action=removeModerator&nick='.rawurlencode($this->name).'"><div class="button">Usuń uprawnienia moderatora</div></a> ';
 
         //
         echo '</div>'; //ingredients
@@ -58,7 +67,6 @@ class Profile {
     private function uploadImage() {
         $target_dir = "avatars/";
         $target_file = $target_dir . $this->name . '.jpg';
-        $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 
         if(isset($_POST["submit"])) {
             $check = getimagesize($_FILES["avatar"]["tmp_name"]);
@@ -69,11 +77,11 @@ class Profile {
             }
         }
 
-        if ($_FILES["avatar"]["size"] > 1048576) {
-            return "Avatar nie może być większy niż 1 MB";
+        if ($_FILES["avatar"]["size"] > 2097152) {
+            return "Avatar nie może być większy niż 2 MB";
         }
 
-        if($imageFileType != "jpg" ) {
+        if(pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION) != "jpg") {
             return "Avatar może być tylko w formacie JPG";
         }
 
@@ -86,7 +94,6 @@ class Profile {
         } else {
             return "Wystąpił błąd przy zmianie avatara";
         }
-
     }
 
     public function __construct() {
@@ -123,6 +130,9 @@ class Profile {
                 case 'moderator':
                     $this->accountType = 'moderator';
                     break;
+                case 'admin':
+                    $this->accountType = 'administrator';
+                    break;
                 default:
                     $this->accountType = '';
                     break;
@@ -143,7 +153,7 @@ class Profile {
     }
 
     public function mainProfilePage() {
-        $this->drawTopPartPage('Przepisy użytkownika '.$this->name.':');
+        $this->drawTopPartPage('Przepisy użytkownika '.$this->name);
 
         if (count($this->recipes)>0) {
             echo '<table id="recipes" cellpadding="5px" cellspacing="0px" border="1px">';
@@ -178,6 +188,42 @@ END;
         }
 
         $this->drawBottomPartPage();
+    }
+
+    public function makeModerator() {
+        require_once __DIR__ . '/../functions.php';
+        $connection = connectDB();
+
+        if ($connection->connect_errno) {
+            infoPage('Nie udało się połączyć z bazą danych! Spróbuj ponownie później.');
+        }
+        else {
+            $sql = "UPDATE users SET account_type = 'moderator' WHERE users.nick = ?";
+            $prep = $connection->prepare($sql);
+            $prep->bind_param('s',$this->name);
+            $prep->execute();
+            if ($prep->affected_rows == 1) header('Location: profile.php?nick='.rawurlencode($this->name));
+            else echo 'Coś poszło nie tak';
+        }
+        $connection->close();
+    }
+
+    public function removeModerator() {
+        require_once __DIR__ . '/../functions.php';
+        $connection = connectDB();
+
+        if ($connection->connect_errno) {
+            infoPage('Nie udało się połączyć z bazą danych! Spróbuj ponownie później.');
+        }
+        else {
+            $sql = "UPDATE users SET account_type = 'normal' WHERE users.nick = ?";
+            $prep = $connection->prepare($sql);
+            $prep->bind_param('s',$this->name);
+            $prep->execute();
+            if ($prep->affected_rows == 1) header('Location: profile.php?nick='.rawurlencode($this->name));
+            else echo 'Coś poszło nie tak';
+        }
+        $connection->close();
     }
 
     public function getData() {

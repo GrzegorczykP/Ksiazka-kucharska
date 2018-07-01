@@ -6,7 +6,7 @@ require_once('classes/recipe.php');
 $error = NULL;
 
 if (isset($_POST['recipeName'])) {
-    $recipe = new Recipe($_POST['recipeName'], $_POST['instruction'], $_POST['category'], $_POST['prepTime'], $_POST['ingredient'], $_POST['quantity'], $_POST['unit'], $_FILES['picture']);
+    $recipe = new Recipe($_POST['recipeName'], $_POST['instruction'], $_POST['category'], $_POST['prepTime'], $_POST['ingredient'], $_POST['quantity'], $_POST['unit']);
     $connection = connectDB();
 
     if ($connection->connect_errno) {
@@ -32,7 +32,8 @@ if (isset($_POST['recipeName'])) {
     <meta charset="UTF-8" />
     <title>Dodawanie przepisu - Książka kucharska</title>
     <link href="style.css" type="text/css" rel="stylesheet" />
-    <script src="ingredients.js"></script>
+    <script src="addIngredient.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Lato&amp;subset=latin-ext" rel="stylesheet">
 </head>
 <body>
 <?php
@@ -54,39 +55,14 @@ topRightMenu(true);
         <form action="addRecipe.php" method="post" id="addRecipe" enctype="multipart/form-data">
             <div>
                 <label>Nazwa dania:</label>
-                <input type="text" name="recipeName" title="Podaj nazwę dania (tylko litery maksymalnie 30 znaków)" required pattern=".[A-Za-ząćęłńóśźżĄĆĘŁŃÓŚŹŻ ]{1,30}"/>
+                <input type="text" name="recipeName" title="Podaj nazwę dania (tylko litery maksymalnie 30 znaków)" required pattern=".[A-Za-ząćęłńóśźżĄĆĘŁŃÓŚŹŻ ]{1,30}" value="<?php if(isset($_POST['recipeName'])) echo $_POST['recipeName'] ?>"/>
             </div>
             <div>
                 <label>Składniki:</label>
                 <div id="ingredient0">
-                    <select name="ingredient[]" style="width: 65%; float: left" required>
-<?php
-$connection = connectDB();
-
-if ($connection->connect_errno) {
-    $error = 'Nie udało się połączyć z bazą danych! Spróbuj ponownie później.';
-}
-else {
-    $sql = "SELECT ID_ingredient, name FROM ingredients ORDER BY name";
-    if ($result = $connection->query($sql)) {
-        while ($row = $result->fetch_assoc()) {
-            echo '<option value=' . $row['ID_ingredient'] . ' >' . $row['name'] . '</option>';
-        }
-    }
-}
-
-$connection->close();
-?>
-                    </select>
-                    <input name="quantity[]" type="number" min="1" style="display: inline-block; margin-left: auto; margin-right: auto; width: 10%; border: 1px rgb(169, 169, 169) solid;" required/>
-                    <select name="unit[]" style="width: 20%; float: right;" required>
-                        <option value="ml">ml</option>
-                        <option value="l">l</option>
-                        <option value="g">g</option>
-                        <option value="dag">dag</option>
-                        <option value="kg">kg</option>
-                        <option value="szt">sztuk</option>
-                    </select>
+                    <input type="text" placeholder="Nazwa składnika" name="ingredient[]" style="width: 65%; float: left" required />
+                    <input name="quantity[]" type="number" placeholder="ilość" min="0" step="0.01" style="display: inline-block; margin-left: auto; margin-right: auto; width: 15%; border: 1px rgb(169, 169, 169) solid;" />
+                    <input type="text" placeholder="jednostka" name="unit[]" style="width: 15%; float: right;" />
                     <div class="clear"></div>
                 </div>
             </div>
@@ -94,15 +70,15 @@ $connection->close();
             <a href="#" onclick="removeIngredient()">- Usuń ostatni składnik</a>
             <div>
                 <label>Instrukcja przygotowania:</label>
-                <textarea type="text" name="instruction" title="Podaj instrukcję przygotowania" form="addRecipe" cols="69" rows="10" style="resize: vertical; margin-top: 15px;" required ></textarea>
+                <textarea type="text" name="instruction" title="Podaj instrukcję przygotowania" form="addRecipe" cols="69" rows="10" style="resize: vertical; margin-top: 15px; width: 500px;" required value="<?php if(isset($_POST['instruction'])) echo $_POST['instruction'] ?>"></textarea>
             </div>
             <div>
                 <label>Czas przygotowania w minutach</label>
-                <input type="number" name="prepTime" title="Podaj czas przygotowania w minutach" min="5" required/>
+                <input type="number" name="prepTime" title="Podaj czas przygotowania w minutach" min="5" required value="<?php if(isset($_POST['prepTime'])) echo $_POST['prepTime'] ?>"/>
             </div>
             <div>
                 <label>Kategoria</label>
-                <select name="category" required>
+                <select name="category" required value="<?php if(isset($_POST['category'])) echo $_POST['category'] ?>">
 <?php
 $connection = connectDB();
 
@@ -129,7 +105,7 @@ else {
                 <input type="file" name="picture" accept="image/jpeg" style="width: 60%; float: right;"/>
                 <div class="clear"></div>
             </div>
-            <div id="err">
+            <div class="err">
                 <?php echo $error?>
             </div>
             <input type="submit" value="Dodaj przepis"/>

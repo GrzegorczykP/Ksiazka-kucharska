@@ -11,6 +11,7 @@ require_once('functions.php');
     <meta charset="UTF-8" />
     <title>Książka kucharska</title>
     <link href="style.css" type="text/css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Lato&amp;subset=latin-ext" rel="stylesheet">
 </head>
 <body>
 <?php
@@ -27,7 +28,7 @@ topRightMenu();
         </div>
         <div class="bottomButtons">
             <a href="explore.php"><div style="border-left: 1px solid #a9a9a9;" class="bottomButton">Przeglądaj przepisy</div></a>
-            <a href="ingredients.php"><div class="bottomButton">Wybierz składniki</div></a>
+            <a href="chooseIngredients.php"><div class="bottomButton">Wybierz składniki</div></a>
 <?php
 if(isset($_SESSION['logged'])) {
     echo '<a href="addRecipe.php"><div class="bottomButton">Dodaj przepis';

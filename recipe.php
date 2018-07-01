@@ -4,7 +4,7 @@ session_start();
 require_once('functions.php');
 
 if(!isset($_GET['recipeId'])) {
-    infoPage("Nie istnieje taki przepis ddd");
+    infoPage("Nie istnieje taki przepis");
     exit;
 }
 
@@ -38,6 +38,7 @@ $connection->close();
     <meta charset="UTF-8" />
     <?php echo '<title>'.$name.' - Książka kucharska</title>'?>
     <link href="style.css" type="text/css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Lato&amp;subset=latin-ext" rel="stylesheet">
 </head>
 <body>
 <?php
@@ -72,10 +73,10 @@ topRightMenu();
 
         echo '<div id="recipeHeader">';
         $path = file_exists('recipe_img/'.$info['name'].'.jpg')?'recipe_img/'.$info['name'].'.jpg':'recipe_img/default.png';
-        echo '<img src="'.$path.'" />';
+        echo '<img src="'.$path.'?='.filemtime($path).'" />';
         echo '<div id="recipeInfo" >';
         echo '<div id="recipeName" >'.$info['name'].'</div>';
-        echo '<label>Autor: </label><a href=profile.php?nick='.$info['nick'].'>'.$info['nick'].'</a><br />';
+        echo '<label>Autor: </label><a href=profile.php?nick='.rawurlencode($info['nick']).'>'.$info['nick'].'</a><br />';
         echo '<label>Data dodania: </label>'.substr($info['creation_date'],0,10).'<br />';
         echo '<label>Czas przygotowania: </label>'.$info['estimated_preparation_time'].' minut<br />';
         echo '<label>Kategoria: </label>'.$info['cat_name'].'<br />';
@@ -84,7 +85,7 @@ topRightMenu();
         echo '<div id="recipe" >';
         echo '<div id="ingredients" ><b>Składniki:</b>';
 
-        $sql = "SELECT * FROM ingredients_quantity INNER JOIN ingredients ON ingredients_quantity.ID_indredient=ingredients.ID_ingredient WHERE ingredients_quantity.ID_recipe = ?";
+        $sql = "SELECT * FROM ingredients_quantity INNER JOIN ingredients ON ingredients_quantity.ID_ingredient=ingredients.ID_ingredient WHERE ingredients_quantity.ID_recipe = ?";
         $prep = $connection->prepare($sql);
         $prep->bind_param('i', $_GET['recipeId']);
         $prep->execute();
@@ -93,9 +94,17 @@ topRightMenu();
 
         echo '<ul style="text-align: left">';
         while (($row = $result->fetch_assoc()) != null) {
-            echo '<li>'.$row['quantity'].' '.$row['unit'].' '.$row['name'].'</li>';
+            echo '<li><b>'.$row['quantity'].' '.$row['unit'].'</b> '.($row['show_name']!=''?$row['show_name']:str_replace('_',' ',$row['name'])).'</li>';
         }
         echo '</ul>';
+
+        echo '<b>Akcje:</b>';
+
+        echo '<a href="printPDF.php?recipeId=' . $info['ID_recipe'] . '" target="_blank"><div class="button">Wersja w PDF do wydruku</div></a> ';
+
+        if (isset($_SESSION['login'])&&($_SESSION['login']==$info['nick']||$_SESSION['accountType']=='admin'||$_SESSION['accountType']=='moderator')) {
+            echo '<a href="addPicture.php?recipeId=' . $info['ID_recipe'] . '"><div class="button">Dodaj zdjęcie do dania</div></a> ';
+        }
 
         echo '</div>'; //ingredients
         echo '<div id="instructions"><b>Przepis:</b><br /><br />'.nl2br($info['instructions']).'</div><div class="clear"></div>';

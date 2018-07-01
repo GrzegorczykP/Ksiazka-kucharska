@@ -39,6 +39,7 @@ else $order = 'name';
     <meta charset="UTF-8" />
     <title>Wyszykiwanie - Książka kucharska</title>
     <link href="style.css" type="text/css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Lato&amp;subset=latin-ext" rel="stylesheet">
 </head>
 <body>
 <?php
@@ -66,7 +67,8 @@ topRightMenu();
     else {
         $sql = "SELECT * FROM cook_recipes WHERE checked=1 AND name LIKE ? ORDER BY ".$order;
         $prep = $connection->prepare($sql);
-        $prep->bind_param('s',$_POST['search']);
+        $search = '%'.$_POST['search'].'%';
+        $prep->bind_param('s',$search);
         $prep->execute();
         $result = $prep->get_result();
 
@@ -74,12 +76,12 @@ topRightMenu();
             echo '<table id="recipes" cellpadding="5px" cellspacing="0px" border="1px"><th><a href="search.php?order=name"> Nazwa dania </a></th><th><a href="search.php?order=time"> Czas przgotowania </a></th><th><a href="search.php?order=author">Autor</a></th><th><a href="search.php?order=date">Data dodania</a></th>';
             for ($i = 0; ($row = $result->fetch_assoc()) != null; $i++) {
                 $class = $i % 2 == 0 ? 'light' : 'normal';
-                echo ' <tr class="' . $class . '"><td><a href="recipe.php?recipeId=' . $row['ID_recipe'] . '">' . $row['name'] . '</a></td><td>' . $row['estimated_preparation_time'] . ' minut</td><td><a href="profile.php?nick=' . $row['nick'] . '">' . $row['nick'] . '</td><td>' . substr($row['creation_date'], 0, 10) . '</td></tr></a>';
+                echo ' <tr class="' . $class . '"><td><a href="recipe.php?recipeId=' . $row['ID_recipe'] . '">' . $row['name'] . '</a></td><td>' . $row['estimated_preparation_time'] . ' minut</td><td><a href="profile.php?nick=' . rawurlencode($row['nick']) . '">' . $row['nick'] . '</td><td>' . substr($row['creation_date'], 0, 10) . '</td></tr></a>';
             }
             echo '</table>';
         }
         else
-            echo 'Nie ma żadnych zakceptowanych przepisów o nazwie '.$_POST['search'];
+            echo 'Nie ma żadnych zakceptowanych przepisów zawierających w nazwie "'.$_POST['search'].'"';
     }
     ?>
 </div>

@@ -17,6 +17,7 @@ $profileData = $profile->getData();
     <meta charset="UTF-8" />
     <?php echo '<title>'.$profileData['nickname'].' - Książka kucharska</title>'?>
     <link href="style.css" type="text/css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Lato&amp;subset=latin-ext" rel="stylesheet">
 </head>
 <body>
 <?php
@@ -38,7 +39,20 @@ topRightMenu();
     if (isset($_GET['action'])) {
         switch ($_GET['action']) {
             case 'addAvatar':
-                $profile->addAvatarPage();
+                if (isset($_SESSION['login'])&&$profileData['nickname']==$_SESSION['login']) $profile->addAvatarPage();
+                else echo 'Nie możesz zmieniać avatarów innych użytkowników<br/><br/><a href="index.php">Przejdź do strony głównej</a>';
+                break;
+            case 'makeModerator':
+                if (!(isset($_SESSION['accountType'])&&$_SESSION['accountType']=='admin')) echo '<div class="err"> Nie możesz minować użytkowników moderatorami</div><br/><br/>';
+                elseif ($profileData['accountType']=='moderator') echo '<div class="err">Użytkownik jest już moderatorem</div><br/><br/>';
+                else $profile->makeModerator();
+                $profile->mainProfilePage();
+                break;
+            case 'removeModerator':
+                if (!(isset($_SESSION['accountType'])&&$_SESSION['accountType']=='admin')) echo '<div class="err"> Nie możesz degradować moderatorów</div><br/><br/>';
+                elseif ($profileData['accountType']=='standardowy') echo '<div class="err">Użytkownik nie jest moderatorem</div><br/><br/>';
+                else $profile->removeModerator();
+                $profile->mainProfilePage();
                 break;
             default:
                 $profile->mainProfilePage();

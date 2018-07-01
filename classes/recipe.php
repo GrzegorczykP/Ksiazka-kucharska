@@ -6,9 +6,43 @@ class Ingredients {
     public $unit;
 
     public function __construct($ingredient, $quantity, $unit) {
-        $this->ingredient = $ingredient;
-        $this->quantity = $quantity;
+        require_once __DIR__ . '/../functions.php';
+        $connection = connectDB();
+
+        if ($connection->connect_errno) {
+            infoPage('Nie udało się połączyć z bazą danych! Spróbuj ponownie później.');
+        }
+        else {
+            $ingredient = str2url($ingredient);
+            if (strlen($ingredient)<1) {
+                infoPage('Podano nieprawidłową nazwę składnika');
+                exit;
+            } else {
+                $sql = "SELECT * FROM ingredients WHERE ingredients.name LIKE ?";
+                $prep = $connection->prepare($sql);
+                $prep->bind_param('s', $ingredient);
+                $prep->execute();
+                $result = $prep->get_result();
+                $affected_rows = $prep->affected_rows;
+                $prep->close();
+                unset ($prep);
+                if ($affected_rows == 1) $this->ingredient = $result->fetch_assoc()['ID_ingredient'];
+                else {
+                    $sql = "INSERT INTO ingredients (ID_ingredient, name, show_name) VALUES (NULL, ?, NULL)";
+                    $prep = $connection->prepare($sql);
+                    $prep->bind_param('s', $ingredient);
+                    $prep->execute();
+                    $this->ingredient = $prep->insert_id;
+                    $prep->close();
+                }
+            }
+        }
+        $connection->close();
+
+        $this->quantity = $quantity==null?NULL:$quantity;
         $this->unit = $unit;
+
+
     }
 
     public function show() {
@@ -21,18 +55,17 @@ class Recipe {
     private $instruction;
     private $category;
     private $prepTime;
-    private $picture;
 
     private $ingredients = array();
 
-    public function __construct($name_c = NULL, $instruction_c = NULL, $category_c = NULL, $prepTime_c = NULL, $ingredient_c = NULL, $ingredientQuantity_c = NULL, $ingredientUnit_c = NULL, $picture = NULL) {
+    public function __construct($name_c = NULL, $instruction_c = NULL, $category_c = NULL, $prepTime_c = NULL, $ingredient_c = NULL, $ingredientQuantity_c = NULL, $ingredientUnit_c = NULL) {
         $this->name = $name_c;
         $this->instruction = $instruction_c;
         $this->category = $category_c;
         $this->prepTime = $prepTime_c;
 
         for($i = 0; $i<count($ingredient_c); $i++) {
-            $x = new Ingredients($ingredient_c[$i], $ingredientQuantity_c[$i], $ingredientUnit_c[$i]);
+            new Ingredients($ingredient_c[$i], $ingredientQuantity_c[$i], $ingredientUnit_c[$i]);
             $this->ingredients[] = new Ingredients($ingredient_c[$i], $ingredientQuantity_c[$i], $ingredientUnit_c[$i]);
         }
     }
@@ -52,6 +85,9 @@ class Recipe {
         if (strlen($err = $this->checkData()) > 0) {
             return $err;
         } else {
+            if(strlen($err = $this->uploadImage())>0) {
+                return $err;
+            }
             $sql = "INSERT INTO cook_recipes (ID_recipe, nick, name, creation_date, instructions, estimated_preparation_time, ID_category, checked) VALUES (NULL, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, 0);";
             $prep = $connection->prepare($sql);
             $prep->bind_param('sssii',$_SESSION['login'],$this->name,$this->instruction,$this->prepTime,$this->category);
@@ -59,7 +95,7 @@ class Recipe {
             $recipeID = $prep->insert_id;
             $prep->close();
 
-            $sql = "INSERT INTO ingredients_quantity (ID_indredient, ID_recipe, quantity, unit) VALUES (?, ?, ?, ?)";
+            $sql = "INSERT INTO ingredients_quantity (ID_ingredient, ID_recipe, quantity, unit) VALUES (?, ?, ?, ?)";
             $prep = $connection->prepare($sql);
 
             foreach ($this->ingredients as $row) {
@@ -68,19 +104,15 @@ class Recipe {
             }
             $prep->close();
 
-            $this->uploadImage();
-
             return '';
         }
     }
 
     private function checkData() {
-        if (strlen($this->name)>30) return 'Nazwa jest zbyt długa';
+        if (strlen($this->name)>31) return 'Nazwa jest zbyt długa';
         if (strlen($this->name)<1) return 'Nie podano nazwy';
         if (strlen($this->instruction)<1) return 'Nie podano instrukcji';
         if (strlen($this->prepTime)<1) return 'Nie podano czasu przygotowaniaa';
-        if ($this->picture['error']) return 'Wystąpił bląd przy przesyłaniu zdjęcia';
-        if ($this->picture['size']>1024000) return 'Zdjącie nie może być większe niż 1 MB';
 
         return '';
     }
@@ -88,9 +120,37 @@ class Recipe {
     private function uploadImage() {
         if($_FILES['picture']['name'])
         {
-            $new_file_name = 'recipe_img/'.$this->name.'.jpg';
-            move_uploaded_file($_FILES['picture']['tmp_name'], $new_file_name);
-            echo $this->picture['error'];
+            $target_dir = "recipe_img/";
+            $target_file = $target_dir . $this->name . '.jpg';
+            $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+            if(isset($_POST["submit"])) {
+                $check = getimagesize($_FILES["picture"]["tmp_name"]);
+                if($check !== false) {
+                    $uploadOk = 1;
+                } else {
+                    return "Wybrany plik nie jest zdjęciem";
+                }
+            }
+
+            if ($_FILES["picture"]["size"] > 1048576) {
+                return "Zdjęcie nie może być większy niż 1 MB";
+            }
+
+            if($imageFileType != "jpg" ) {
+                return "Zdjęcie może być tylko w formacie JPG";
+            }
+
+            if (file_exists($target_file)) {
+                unlink($target_file);
+            }
+
+            if (move_uploaded_file($_FILES["picture"]["tmp_name"], $target_file)) {
+                return "";
+            } else {
+                return "Wystąpił błąd przy wgrywaniu zdjęcia";
+            }
         }
+        else return '';
     }
 }
