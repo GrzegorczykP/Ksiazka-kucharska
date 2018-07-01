@@ -1,0 +1,272 @@
+body {
+    background-color: #4fc8d1;
+    text-align: center;
+    min-width: 1272px;
+    position: relative;
+}
+
+a {
+    color: #000;
+    text-decoration: none;
+}
+
+#rightTopProfile {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+
+}
+
+#rightTopProfile img {
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    margin-right: 5px;
+    object-fit: cover;
+}
+
+#rightTopProfile a {
+    font-size: 18px;
+    vertical-align: top;
+    text-decoration: none;
+}
+
+#rightTopProfile a:hover {
+    color: #4f8dd1;
+}
+
+#index-content {
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 140px;
+    width: 1000px;
+}
+
+#title {
+    font-size: 72px;
+}
+
+#title:hover {
+    border: 1px;
+    background-color: #55d14f;
+}
+
+.clear {
+    clear: both;
+    height: 0px;
+    width: 0px;
+}
+
+#search {
+    margin-right: auto;
+    margin-left: auto;
+    width: 586px;
+    height: 60px;
+    float: left;
+}
+
+#search input[type=text] {
+    width: 500px;
+    height: 36px;
+    font-size: 28px;
+    padding: 10px;
+    float: left;
+}
+
+#search input[type=image] {
+    width: 40px;
+    height: 40px;
+    padding: 9px;
+    float: left;
+    display: block;
+    background-color: #fff;
+    border: 1px solid #a9a9a9;
+    border-left: none;
+}
+
+#search input[type=image]:hover {
+    background-color: #55d14f;
+    cursor: pointer;
+}
+
+.bottomButtons {
+    margin-top: 80px;
+    margin-right: auto;
+    margin-left: auto;
+    width: 874px;
+    height: 60px;
+}
+
+.bottomButton {
+    font-size: 24px;
+    padding: 15px;
+    width: 260px;
+    float: left;
+    border: 1px solid #a9a9a9;
+    border-left: none;
+    display: block;
+    background-color: #4f8dd1;
+}
+
+.bottomButton img {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    margin-right: 5px;
+}
+
+.bottomButton:hover {
+    background-color: #55d14f;
+}
+
+#miniTitle {
+    font-size: 48px;
+    float: left;
+    margin-right: 20px;
+}
+
+#miniTitle:hover {
+    border: 1px;
+    background-color: #55d14f;
+}
+
+#header {
+    height: 60px;
+    width: 970px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form {
+    max-width: 500px;
+    height: auto;
+    /*margin-left: auto;
+    margin-right: auto;
+    margin-top: 40px;
+    padding: 30px;
+    border: 2px outset #2f63f1;
+    background-color: #30b1f2;*/
+}
+
+.form label {
+    margin-top: 15px;
+    display: block;
+    font-size: 18px;
+}
+
+.form input,select {
+    margin-top: 15px;
+    width: 100%;
+    display: block;
+    font-size: 18px;
+}
+
+.form input[type=submit] {
+    margin-top: 40px;
+    padding: 10px;
+    background-color: #4f8dd1;
+    border: 1px solid #a9a9a9;
+
+}
+
+.form input[type=submit]:hover {
+    background-color: #55d14f;
+}
+
+#confirm {
+    display: block;
+    background-color: #4f8dd1;
+    font-size: 18px;
+    padding: 10px;
+    border: 1px solid #a9a9a9;
+}
+
+#confirm:hover {
+    background-color: #55d14f;
+}
+
+#err {
+    padding: 10px;
+    font-size: 18px;
+    color: #ff0000;
+}
+
+#content {
+    display: inline-block;
+    width: auto;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 40px;
+    padding: 30px;
+    border: 2px outset #2f63f1;
+    background-color: #30b1f2;
+    font-size: 18px;
+}
+
+#content a {
+    color: #3000e8;;
+}
+
+#content a:hover {
+    color: #56ff5c;
+}
+
+#recipeHeader {
+    width: 900px;
+}
+
+#recipeHeader img {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    float: left;
+}
+
+#recipeName {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+#recipeInfo {
+    float: left;
+    width: 540px;
+    text-align: left;
+    padding: 30px;
+    font-size: 24px;
+    height: 260px;
+}
+
+#recipeInfo label {
+    font-weight: bold;
+}
+
+#ingredients {
+    width: 300px;
+    float: left;
+    padding-top: 30px;
+}
+
+#instructions {
+    float: left;
+    width: 540px;
+    text-align: left;
+    padding: 30px;
+}
+
+#recipes th {
+    background-color: #4f8dd1;
+}
+
+.light {
+    background-color: #4fc8d1;
+}
+
+.button {
+    margin-top: 40px;
+    padding: 10px;
+    background-color: #4f8dd1;
+    border: 1px solid #a9a9a9;
+}
