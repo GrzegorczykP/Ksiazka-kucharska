@@ -1,1 +1,5 @@
 .idea
+recipe_img/*
+!recipe_img/default.png
+avatars/*
+!avatars/default.jpg
